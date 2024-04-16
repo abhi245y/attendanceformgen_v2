@@ -12,6 +12,8 @@ secondHalfColumn: "X9"
 mainCertififcate: "B16"
 olidayCertififcate: "B22"
 quarantineCertififcate: "B24"
+anRowNumber: "11"
+fnRowNumber: "12"
 dateColumnMapping:
   21: "C"
   22: "D"

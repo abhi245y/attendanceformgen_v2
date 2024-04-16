@@ -5,12 +5,20 @@ class ConfigFileLocation:
     def __init__(self):
         self.excel_cell_config = "config/excel_cell_config.yaml"
         self.certificate_template = "config/certificate_template.yaml"
+        self.excel_template_file = "templates/attendance_form_template.xlsm"
+        self.output = "output/"
 
     def get_excel_cell_config_path(self):
         return self.excel_cell_config
 
     def get_certificate_template_path(self):
         return self.certificate_template
+
+    def get_excel_template_file_path(self):
+        return self.excel_template_file
+
+    def get_output_folder_path(self):
+        return self.output
 
 
 class ExcelCellConfig:
@@ -60,8 +68,10 @@ class ExcelCellConfig:
     def get_quarantine_certififcate_id(self):
         return self.config["quarantineCertififcate"]
 
-    def get_dates_column_ids(self, target):
-        return self.config["dateColumnMapping"][target]
+    def get_attendance_dates_column_ids(self, target):
+        return self.config["dateColumnMapping"][target] + self.config[
+            "anRowNumber"
+        ], self.config["dateColumnMapping"][target] + self.config["fnRowNumber"]
 
 
 class CertificatesTemplate:
