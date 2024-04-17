@@ -1,16 +1,17 @@
-from utils.config import ConfigFileLocation, ExcelCellConfig
+from utils.config import ExcelCellConfig, OtherConfigs
 import openpyxl
 
 
 class ExcelWorkbookHandler:
-    def __init__(self):
+    def __init__(self, template_file_path):
         self.excel_file = openpyxl.load_workbook(
-            ConfigFileLocation.get_excel_template_file_path,
+            template_file_path,
             read_only=False,
             keep_vba=True,
         )
 
         self.selected_sheet = self.excel_file["Sheet1"]
+        self.config = ExcelCellConfig
 
     def mark_attendance(self, attendance_data):
         attendance_markings = {
@@ -23,7 +24,7 @@ class ExcelWorkbookHandler:
         for attendance_type, attendance_dates in attendance_data.items():
             mark = attendance_markings.get(attendance_type, "")
             for date in attendance_dates:
-                anCellID, fnCellID = ExcelCellConfig.get_an_fn_cell_id(int(date))
+                anCellID, fnCellID = self.config.get_an_fn_cell_id(int(date))
                 self.selected_sheet[anCellID] = mark
                 self.selected_sheet[fnCellID] = mark
 
@@ -41,3 +42,22 @@ class ExcelWorkbookHandler:
 
             self.selected_sheet[anCellID] = line_string
             self.selected_sheet[fnCellID] = line_string
+
+    def fill_basic_info(self, details):
+        self.selected_sheet[self.config.get_department_id] = (
+            OtherConfigs.get_department()
+        )
+        self.selected_sheet[self.config.get_period_of_appointment_from_id] = (
+            details.appointment_period_from
+        )
+        self.selected_sheet[self.config.get_period_of_appointment_to_id] = (
+            details.appointment_period_to
+        )
+        self.selected_sheet[self.config.get_name_id()] = details.name = details.name
+        if details.employee_id != "n/a":
+            self.selected_sheet[self.config.get_employeeid_id] = details.employee_id
+
+        self.selected_sheet[self.config.get_bank_branch_id] = details.mobile_number
+        self.selected_sheet[self.config.get_account_number_id] = details.account_number
+        self.selected_sheet[self.config.get_ifsc_code_id] = details.ifsc_code
+        self.selected_sheet[self.config.get_mobile_number_id] = details.mobilenumber

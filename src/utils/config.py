@@ -29,19 +29,19 @@ class ExcelCellConfig:
         with open(ConfigFileLocation().get_excel_cell_config_path(), "r") as file:
             self.config = yaml.safe_load(file)
 
-    def get_name(self):
+    def get_name_id(self):
         return self.config["name"]
 
-    def get_department(self):
+    def get_department_id(self):
         return self.config["department"]
 
-    def get_period_of_appointment_from(self):
+    def get_period_of_appointment_from_id(self):
         return self.config["periodOfAppointmentFrom"]
 
-    def get_period_of_appointment_to(self):
+    def get_period_of_appointment_to_id(self):
         return self.config["periodOfAppointmentTo"]
 
-    def get_employee_id(self):
+    def get_employeeid_id(self):
         return self.config["employeeID"]
 
     def get_bank_branch_id(self):
@@ -125,3 +125,6 @@ class OtherConfigs:
             return self.config["labourerPerDayWage"]
         elif post == "Driver":
             return self.config["driverPerDayWage"]
+
+    def get_department(self):
+        return self.config["department"]
