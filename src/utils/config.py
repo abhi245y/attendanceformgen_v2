@@ -4,7 +4,7 @@ import yaml
 class ConfigFileLocation:
     def __init__(self):
         self.excel_cell_config = "config/excel_cell_config.yaml"
-        self.certificate_template = "config/certificate_template.yaml"
+        self.other_templates = "config/other_templates.yaml"
         self.excel_template_file = "templates/attendance_form_template.xlsm"
         self.output = "output/"
 
@@ -12,13 +12,16 @@ class ConfigFileLocation:
         return self.excel_cell_config
 
     def get_certificate_template_path(self):
-        return self.certificate_template
+        return self.other_templates
 
     def get_excel_template_file_path(self):
         return self.excel_template_file
 
     def get_output_folder_path(self):
         return self.output
+
+    def get_other_configs_path(self):
+        return self.other_templates
 
 
 class ExcelCellConfig:
@@ -69,9 +72,13 @@ class ExcelCellConfig:
         return self.config["quarantineCertififcate"]
 
     def get_attendance_dates_column_ids(self, target):
-        return self.config["dateColumnMapping"][target] + self.config[
+        return self.config["dateColumnMapping"][target]
+
+    def get_an_fn_cell_id(self, target):
+        date_column_id = self.get_attendance_dates_column_ids(target=target)
+        return date_column_id + self.config[
             "anRowNumber"
-        ], self.config["dateColumnMapping"][target] + self.config["fnRowNumber"]
+        ], date_column_id + self.config["fnRowNumber"]
 
 
 class CertificatesTemplate:
@@ -104,3 +111,17 @@ class CertificatesTemplate:
         return self.config["quarantineCertificate"].format(
             details.gender, details.quarantine_days, details.from_, details.to_
         )
+
+
+class OtherConfigs:
+    def __init__(self):
+        with open(ConfigFileLocation().get_other_configs_path(), "r") as file:
+            self.config = yaml.safe_load(file)
+
+    def get_wages(self, post):
+        if post == "Messenger":
+            return self.config["messengerPerDayWage"]
+        elif post == "Labourer":
+            return self.config["labourerPerDayWage"]
+        elif post == "Driver":
+            return self.config["driverPerDayWage"]

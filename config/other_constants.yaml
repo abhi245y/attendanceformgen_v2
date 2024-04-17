@@ -1,3 +1,6 @@
 mainCertififcate: "Certified that Sri.{}, Casual {} has worked in {} section for {} days during the period from {} to {} and {} work and conduct during the period was {}. {} is eligible to claim Rs {} @ Rs {} per day. Certified that this amount has not been claimed earlier.\nThe bank details noted above has been verified against the original documents produced by the casual {}."
 holidayCertificate: "Certified that {} had attended duty on holidays on {}."
 quarantineCertificate: "Certified that {} is eligible to claim wages for {} days during the period from {} to {}, for absence due to quarantine."
+labourerPerDayWage: 675
+messengerPerDayWage: 675
+driverPerDayWage: 725
