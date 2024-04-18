@@ -44,6 +44,9 @@ class ExcelCellConfig:
     def get_employeeid_id(self):
         return self.config["employeeID"]
 
+    def get_employeeid_prefix_id(self):
+        return self.config["employeeIDPrefix"]
+
     def get_bank_branch_id(self):
         return self.config["bankBranch"]
 
@@ -68,9 +71,6 @@ class ExcelCellConfig:
     def get_holiday_certififcate_id(self):
         return self.config["holidayCertififcate"]
 
-    def get_quarantine_certififcate_id(self):
-        return self.config["quarantineCertififcate"]
-
     def get_attendance_dates_column_ids(self, target):
         return self.config["dateColumnMapping"][target]
 
@@ -86,6 +86,16 @@ class CertificatesTemplate:
         with open(ConfigFileLocation().get_certificate_template_path(), "r") as file:
             self.config = yaml.safe_load(file)
 
+    def gender_pronoune(self, gender):
+        if gender == "Male":
+            pronoune_1 = "He"
+            pronoune_2 = "his"
+            return [pronoune_1, pronoune_2]
+        else:
+            pronoune_1 = "She"
+            pronoune_2 = "her"
+            return [pronoune_1, pronoune_2]
+
     def generate_main_certififcate(self, details):
         return self.config["mainCertififcate"].format(
             details.name,
@@ -94,9 +104,9 @@ class CertificatesTemplate:
             details.present_days,
             details.from_,
             details.to_,
-            details.gender,
+            self.gender_pronoune[details.gender][1],
             details.periodPerformance,
-            details.gender,
+            self.gender_pronoune[details.gender][0],
             details.remuneration,
             details.wage,
             details.post,
@@ -104,12 +114,7 @@ class CertificatesTemplate:
 
     def generate_holiday_certififcate(self, details):
         return self.config["holidayCertificate"].format(
-            details.gender, details.holiday_duty_dates
-        )
-
-    def quarantine_certificate(self, details):
-        return self.config["quarantineCertificate"].format(
-            details.gender, details.quarantine_days, details.from_, details.to_
+            self.gender_pronoune[details.gender][1], details.holiday_duty_dates
         )
 
 
@@ -128,3 +133,6 @@ class OtherConfigs:
 
     def get_department(self):
         return self.config["department"]
+
+    def get_db_path(self):
+        return self.config["db_path"]

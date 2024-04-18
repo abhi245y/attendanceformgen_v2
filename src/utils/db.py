@@ -1,4 +1,31 @@
 import sqlite3
+from utils.config import OtherConfigs
+
+
+class EmployeeDetails:
+    def __init__(
+        self,
+        name,
+        gender,
+        post,
+        employee_id,
+        bank_name,
+        ifsc_code,
+        account_number,
+        mobile_number,
+        period_from,
+        period_to,
+    ):
+        self.name = name
+        self.gender = gender
+        self.post = post
+        self.employee_id = employee_id
+        self.bank_name = bank_name
+        self.ifsc_code = ifsc_code
+        self.account_number = account_number
+        self.mobile_number = mobile_number
+        self.appointment_period_from = period_from
+        self.appointment_period_to = period_to
 
 
 class JsonPayLoadStructure:
@@ -11,8 +38,8 @@ class JsonPayLoadStructure:
 
 
 class EmployeeDatabase:
-    def __init__(self, db_path):
-        self.db_path = db_path
+    def __init__(self):
+        self.db_path = OtherConfigs().get_db_path()
         self.conn = None
         self.cursor = None
 
@@ -31,21 +58,20 @@ class EmployeeDatabase:
             )
             res = self.cursor.fetchone()
             if res:
-                payload = {
-                    "name": res[0],
-                    "gender": res[1],
-                    "post": res[2],
-                    "id": res[3],
-                    "bank_name": res[4],
-                    "ifsc_code": res[5],
-                    "account_num": res[6],
-                    "mobile_num": res[7],
-                    "period_from": res[8],
-                    "period_to": res[9],
-                }
-                return JsonPayLoadStructure("Sucess", payload)
+                return EmployeeDetails(
+                    name=res[0],
+                    gender=res[1],
+                    post=res[2],
+                    employee_id=res[3],
+                    bank_name=res[4],
+                    ifsc_code=res[5],
+                    account_number=res[6],
+                    mobile_number=res[7],
+                    period_from=res[8],
+                    period_to=res[9],
+                )
             else:
-                return JsonPayLoadStructure("Error no employee found", None)
+                return None
         except sqlite3.Error as e:
             print(f"Error retrieving employee details: {e}")
             return JsonPayLoadStructure("Error retrieving employee details", None)
