@@ -46,3 +46,12 @@ class AttendanceFormGenerator:
                 second_month_name=self.absent_days_to,
             )
         )
+
+        self.excel_handler.mark_attendance(
+            attendance_data={
+                "present": self.generate_present_dates(self),
+                "absent": self.absent_days,
+                "holiday": self.holidays_list,
+                "break": self.break_date,
+            }
+        )

@@ -24,11 +24,12 @@ class ExcelWorkbookHandler:
             "break": "B",
         }
         for attendance_type, attendance_dates in attendance_data.items():
-            mark = attendance_markings.get(attendance_type, "")
-            for date in attendance_dates:
-                anCellID, fnCellID = self.config.get_an_fn_cell_id()(int(date))
-                self.selected_sheet[anCellID] = mark
-                self.selected_sheet[fnCellID] = mark
+            if attendance_dates is not None:
+                mark = attendance_markings.get(attendance_type, "")
+                for date in attendance_dates:
+                    anCellID, fnCellID = self.config.get_an_fn_cell_id()(int(date))
+                    self.selected_sheet[anCellID] = mark
+                    self.selected_sheet[fnCellID] = mark
 
     def mark_irrelevant_dates(self, irrelevant_dates_list):
         line_char = "─"
