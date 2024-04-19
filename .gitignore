@@ -2,3 +2,9 @@ src/employee_details.json
 src/excell_cell_config.json
 src/database/employee_details.sql
 src/database/main_db.sqlite
+src/utils/__pycache__/config.cpython-310.pyc
+src/utils/__pycache__/date_time_util.cpython-310.pyc
+src/utils/__pycache__/db.cpython-310.pyc
+src/utils/__pycache__/number_word_converter.cpython-310.pyc
+src/utils/__pycache__/variable_storage.cpython-310.pyc
+src/handlers/__pycache__/excel_workbook_handler.cpython-310.pyc

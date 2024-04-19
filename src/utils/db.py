@@ -1,5 +1,5 @@
 import sqlite3
-from utils.config import OtherConfigs
+from utils.config import ConfigFileLocation
 
 
 class EmployeeDetails:
@@ -39,7 +39,7 @@ class JsonPayLoadStructure:
 
 class EmployeeDatabase:
     def __init__(self):
-        self.db_path = OtherConfigs().get_db_path()
+        self.db_path = ConfigFileLocation().get_db_path()
         self.conn = None
         self.cursor = None
 
@@ -51,12 +51,21 @@ class EmployeeDatabase:
         if self.conn:
             self.conn.close()
 
+    def __enter__(self):
+        self.connect()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
     def get_employee_details(self, employee_name):
         try:
+            self.connect()
             self.cursor.execute(
                 """SELECT * FROM employee_details WHERE name=?""", (employee_name,)
             )
             res = self.cursor.fetchone()
+            self.close()
             if res:
                 return EmployeeDetails(
                     name=res[0],
@@ -71,6 +80,7 @@ class EmployeeDatabase:
                     period_to=res[9],
                 )
             else:
+                print(f"Error No Details Found For: {employee_name}")
                 return None
         except sqlite3.Error as e:
             print(f"Error retrieving employee details: {e}")
@@ -84,10 +94,3 @@ class EmployeeDatabase:
         except sqlite3.Error as e:
             print(f"Error retrieving employee list: {e}")
             return JsonPayLoadStructure("Error retrieving employee details", None)
-
-    def __enter__(self):
-        self.connect()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()

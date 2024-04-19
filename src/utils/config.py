@@ -1,12 +1,27 @@
 import yaml
+from utils.variable_storage import VariableStorage
+import os
 
 
 class ConfigFileLocation:
     def __init__(self):
-        self.excel_cell_config = "config/excel_cell_config.yaml"
-        self.other_templates = "config/other_templates.yaml"
-        self.excel_template_file = "templates/attendance_form_template.xlsm"
-        self.output = "output/"
+        self.current_folder = os.path.dirname(os.path.abspath(__file__))
+        self.project_root = os.path.dirname(os.path.dirname(self.current_folder))
+        self.excel_cell_config = os.path.join(
+            self.project_root, "config", "excel_cell_config.yaml"
+        )
+        self.other_templates = os.path.join(
+            self.project_root, "config", "other_constants.yaml"
+        )
+        self.excel_template_file = os.path.join(
+            self.project_root, "templates", "attendance_form_template.xlsm"
+        )
+        self.output = os.path.join(
+            self.project_root,
+            "output",
+        )
+
+        self.db_path = os.path.join(self.project_root, "output", "main_db.sqlite")
 
     def get_excel_cell_config_path(self):
         return self.excel_cell_config
@@ -22,6 +37,32 @@ class ConfigFileLocation:
 
     def get_other_configs_path(self):
         return self.other_templates
+
+    def get_db_path(self):
+        return self.db_path
+
+
+class OtherConfigs:
+    def __init__(self):
+        with open(ConfigFileLocation().get_other_configs_path(), "r") as file:
+            self.config = yaml.safe_load(file)
+
+    def get_wages(self, post):
+        if post == "Messenger" or post == "Messenger-AD-A-8":
+            return self.config["messengerPerDayWage"]
+        elif post == "Labourer":
+            return self.config["labourerPerDayWage"]
+        elif post == "Driver":
+            return self.config["driverPerDayWage"]
+
+    def get_department(self):
+        return self.config["department"]
+
+    def get_db_path(self):
+        return self.config["db_path"]
+
+    def get_output_path(self):
+        return self.config["output_save_path"]
 
 
 class ExcelCellConfig:
@@ -96,43 +137,24 @@ class CertificatesTemplate:
             pronoune_2 = "her"
             return [pronoune_1, pronoune_2]
 
-    def generate_main_certififcate(self, details):
+    def generate_main_certififcate(self, details: VariableStorage):
         return self.config["mainCertififcate"].format(
-            details.name,
-            details.post,
-            details.section_name,
+            details.employee_details.name,
+            details.employee_details.post.replace("-AD-A-8", ""),
+            OtherConfigs().get_department(),
             details.present_days,
-            details.from_,
-            details.to_,
-            self.gender_pronoune[details.gender][1],
+            details.attendace_period_from,
+            details.attendace_period_to,
+            self.gender_pronoune[details.employee_details.gender][1],
             details.periodPerformance,
-            self.gender_pronoune[details.gender][0],
+            self.gender_pronoune[details.employee_details.gender][0],
             details.remuneration,
-            details.wage,
-            details.post,
+            str(OtherConfigs().get_wages(details.employee_details.post)) + ".00/-",
+            details.employee_details.post.lower(),
         )
 
-    def generate_holiday_certififcate(self, details):
+    def generate_holiday_certififcate(self, details: VariableStorage):
         return self.config["holidayCertificate"].format(
-            self.gender_pronoune[details.gender][1], details.holiday_duty_dates
+            self.gender_pronoune[details.employee_details.gender][1],
+            details.holiday_duty_dates,
         )
-
-
-class OtherConfigs:
-    def __init__(self):
-        with open(ConfigFileLocation().get_other_configs_path(), "r") as file:
-            self.config = yaml.safe_load(file)
-
-    def get_wages(self, post):
-        if post == "Messenger":
-            return self.config["messengerPerDayWage"]
-        elif post == "Labourer":
-            return self.config["labourerPerDayWage"]
-        elif post == "Driver":
-            return self.config["driverPerDayWage"]
-
-    def get_department(self):
-        return self.config["department"]
-
-    def get_db_path(self):
-        return self.config["db_path"]

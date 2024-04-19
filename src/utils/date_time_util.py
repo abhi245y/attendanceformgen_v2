@@ -19,3 +19,12 @@ class DateTimeUtil:
             self.change_format("%d/%m/%Y", "%Y-%m-%d %H:%M:%S", str(date))
             for date in pandas.date_range(start=_from_date, end=_to_date)
         ]
+
+    def get_day(self, target_date, current_format):
+        datetime.datetime.strptime(target_date, current_format).day
+
+    def get_month(self, target_date, current_format):
+        datetime.datetime.strptime(target_date, current_format).month
+
+    def get_year(self, target_date, current_format):
+        datetime.datetime.strptime(target_date, current_format).year

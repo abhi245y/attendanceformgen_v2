@@ -5,3 +5,4 @@ messengerPerDayWage: 675
 driverPerDayWage: 725
 department: "CD Unit"
 db_path: "/src/database/main_db.sqlite"
+output_save_path: "./output/"
