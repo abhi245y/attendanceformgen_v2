@@ -68,7 +68,18 @@ class EmployeeDatabase:
             self.close()
             if res:
                 if require_json:
-                    return res
+                    return {
+                        "name": res[0],
+                        "gender": res[1],
+                        "post": res[2],
+                        "employee_id": res[3],
+                        "bank_name": res[4],
+                        "ifsc_code": res[5],
+                        "account_number": res[6],
+                        "mobile_number": res[7],
+                        "period_from": res[8],
+                        "period_to": res[9],
+                    }
                 return EmployeeDetails(
                     name=res[0],
                     gender=res[1],
@@ -86,13 +97,19 @@ class EmployeeDatabase:
                 return None
         except sqlite3.Error as e:
             print(f"Error retrieving employee details: {e}")
-            return JsonPayLoadStructure("Error retrieving employee details", None)
+            return JsonPayLoadStructure(
+                "Error retrieving employee details", None
+            ).get_payload()
 
     def get_employee_list(self):
         try:
+            self.connect()
             self.cursor.execute("""SELECT name FROM employee_details""")
             res = [row[0] for row in self.cursor.fetchall()]
-            return JsonPayLoadStructure("Sucess", res)
+            self.close()
+            return JsonPayLoadStructure("Sucess", res).get_payload()
         except sqlite3.Error as e:
             print(f"Error retrieving employee list: {e}")
-            return JsonPayLoadStructure("Error retrieving employee details", None)
+            return JsonPayLoadStructure(
+                "Error retrieving employee details", None
+            ).get_payload()

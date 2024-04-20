@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html data-theme="light">
+  <head>
+    <title>Attendance Form Generate</title>
+    <!-- <link
+      rel="stylesheet"
+      media="screen"
+      href="{{ url_for('static',filename='styles/v2_proto.css') }}"
+    /> -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link
+      rel="stylesheet"
+      media="screen"
+      href="{{ url_for('static',filename='styles/pico.min.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      media="screen"
+      href="{{ url_for('static',filename='styles/flatpicker-pico-theme.css') }}"
+    />
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.min.js"
+      integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+      crossorigin="anonymous"
+    ></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.3.0/js/bootstrap-datepicker.js"></script> -->
+  </head>
+  <body>
+    <header class="container"><h1>Attendance Form Generator</h1></header>
+    <main>
+      <div class="container">
+        <article>
+          <form action="/processing" method="POST">
+            <header><h4>Enter Employee Detials</h4></header>
+            <fieldset>
+              <div class="grid">
+                <label>
+                  <details>
+                    <summary role="button" class="outline contrast">
+                      Employees list
+                    </summary>
+                    <p>
+                      The Employees List is a roster containing the names of
+                      individuals currently under contract on CD Unit. Select an
+                      employee's name from the list to access get started.
+                    </p>
+                  </details>
+                  <article>
+                    <select
+                      id="employee-name-select"
+                      name="employee-name"
+                      required=""
+                      multiple
+                      size="9"
+                      onchange="updateDates()"
+                    >
+                      <option selected="selected" hidden>
+                        Select Employee Name
+                      </option>
+                    </select>
+                    <pre></pre>
+                  </article>
+                </label>
+                <label>
+                  <details>
+                    <summary role="button" class="outline contrast">
+                      Period of appointment
+                    </summary>
+                    <p>
+                      The timeframe during which the employee is officially
+                      hired and bound by the terms and conditions of their
+                      employment. For instance, it may range from the contract
+                      start date to the contract end date, establishing the
+                      duration of the employment agreement.
+                    </p>
+                  </details>
+                  <article>
+                    <label>
+                      <h6>From</h6>
+                      <input
+                        type="date"
+                        placeholder="MM/DD/YYYY"
+                        id="period-appointment-from"
+                        name="period-appointment-from"
+                        required=""
+                    /></label>
+                    <label>
+                      <h6>To</h6>
+                      <input
+                        type="date"
+                        placeholder="MM/DD/YYYY"
+                        id="period-appointment-to"
+                        name="period-appointment-to"
+                        required=""
+                    /></label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        id="overide-check"
+                        name="overide-check"
+                      />
+                      Overide this period?
+                    </label>
+                    <pre></pre>
+                  </article>
+                </label>
+                <div>
+                  <details>
+                    <summary role="button" class="outline contrast">
+                      Salary Period
+                    </summary>
+                    <p>
+                      The duration for which an employee's salary is calculated
+                      and paid, typically spanning from a start date to an end
+                      date, representing the time they have actively worked. For
+                      example, it could range from March 20, 2024, to April 21,
+                      2024.
+                    </p>
+                  </details>
+                  <article>
+                    <label>
+                      <h6>From</h6>
+                      <input
+                        type="date"
+                        placeholder="MM/DD/YYYY"
+                        id="salary-period-from"
+                        name="salary-period-from"
+                        required=""
+                        onchange="onPeriodChange()"
+                    /></label>
+                    <label>
+                      <h6>To</h6>
+                      <input
+                        type="date"
+                        placeholder="MM/DD/YYYY"
+                        id="salary-period-to"
+                        name="salary-period-to"
+                        required=""
+                        onchange="onPeriodChange()"
+                    /></label>
+                    <pre></pre>
+                    <pre></pre>
+                    <pre style="margin-bottom: 11px"></pre>
+                  </article>
+                </div>
+              </div>
+              <article>
+                <details>
+                  <summary>Absent Days</summary>
+                  <p>Select the days In which the employee was absent.</p>
+                </details>
+                <input
+                  type="text"
+                  placeholder="Enter Absent Dates"
+                  id="absent-days-input"
+                  name="absent-days"
+                  class="date-multi"
+                />
+              </article>
+            </fieldset>
+            <article>
+              <details>
+                <summary>Holydays</summary>
+                <p>
+                  Identify and mark all holidays occurring within the current
+                  salary period.
+                </p>
+              </details>
+              <input
+                type="text"
+                placeholder="Enter Holydays"
+                id="holiday-dates-input"
+                name="holiday-dates"
+                class="date-multi"
+              />
+            </article>
+            <article>
+              <details>
+                <summary>
+                  Non-Working Days (Days Other than Break/Holydays/Absent)
+                </summary>
+                <p>
+                  Refers to days not relevant to the current salary period. For
+                  instance, if an employee's contract ends before the end of the
+                  period, the days after the contract expiration date are
+                  designated as non-working days.
+                </p>
+              </details>
+              <input
+                type="text"
+                placeholder="Enter Non-Working Days"
+                id="non-working-days-input"
+                name="non-working-days"
+                class="date-multi"
+              />
+            </article>
+            <div class="grid">
+              <article>
+                <details>
+                  <summary>Break</summary>
+                  <p>
+                    Refers to the next working day following the expiration of
+                    an employee's contract period.
+                  </p>
+                </details>
+                <input
+                  type="date"
+                  placeholder="MM/DD/YYYY"
+                  id="break-days-input"
+                  name="break-days"
+                />
+              </article>
+              <article>
+                <legend><h5>Miscellaneous:</h5></legend>
+                <label>
+                  <small
+                    >Did the employee wokred on Holidays or
+                    Stike/harthal?</small
+                  >
+                  <input
+                    type="checkbox"
+                    id="holiday-duty-certificate-check"
+                    name="holiday-duty-certificate"
+                    onchange="checkCheckBox(this.id)"
+                  />
+                </label>
+                <pre></pre>
+                <input
+                  type="text"
+                  placeholder="Enter Holiday Duty Dates"
+                  id="holiday-duty-dates-input"
+                  name="holiday-duty-dates"
+                  hidden
+                  class="date-multi"
+                />
+              </article>
+            </div>
+            <input type="submit" value="Generate" />
+          </form>
+        </article>
+      </div>
+    </main>
+  </body>
+  <script>
+    function checkCheckBox(checkId) {
+      let cb = document.querySelector("#" + checkId);
+
+      if (cb.checked === true) {
+        if (checkId === "holiday-duty-certificate-check") {
+          document
+            .querySelector("#holiday-duty-dates-input")
+            .removeAttribute("hidden");
+        }
+      } else if (cb.checked === false) {
+        if (checkId === "holiday-duty-certificate-check") {
+          document
+            .querySelector("#holiday-duty-dates-input")
+            .setAttribute("hidden", "");
+        }
+      }
+    }
+  </script>
+  <script>
+    holiDatePicker = flatpickr("#holiday-dates-input", {
+      mode: "multiple",
+      dateFormat: "d/m/Y",
+    });
+    nonWorkingDatePicker = flatpickr("#holiday-dates-input", {
+      mode: "multiple",
+      dateFormat: "d/m/Y",
+    });
+    function getWeekends(startDateStr, endDateStr) {
+      const weekends = [];
+      const startDate = new Date(startDateStr);
+      const endDate = new Date(endDateStr);
+      const oneDay = 24 * 60 * 60 * 1000; // Hours * Minutes * Seconds * Milliseconds
+
+      for (
+        let currentDate = startDate;
+        currentDate <= endDate;
+        currentDate = new Date(currentDate.getTime() + oneDay)
+      ) {
+        const dayOfWeek = currentDate.getDay();
+        const day = currentDate.getDate();
+        const month = currentDate.getMonth() + 1; // Months are zero-based, so we add 1
+        const year = currentDate.getFullYear();
+
+        if (dayOfWeek === 0) {
+          // Sunday
+          weekends.push(`${day}/${month}/${year}`);
+        } else if (dayOfWeek === 6 && day >= 8 && day <= 14) {
+          // Second Saturday
+          weekends.push(`${day}/${month}/${year}`);
+        }
+      }
+      return weekends;
+    }
+
+    function getSalaryPeriod() {
+      let currentDate = new Date();
+      let currentDay = currentDate.getDate();
+
+      let day20 = currentDay - 20;
+      let currentMonth = currentDate.getMonth();
+
+      let previousMonth = currentMonth - 1;
+
+      if (previousMonth < 0) {
+        previousMonth = 11;
+        let currentYear = currentDate.getFullYear();
+        currentYear -= 1;
+        currentDate.setFullYear(currentYear);
+      }
+
+      currentDate.setMonth(previousMonth);
+      currentDate.setDate(21);
+
+      let previousMonthDate = currentDate.toISOString().substr(0, 10);
+
+      currentDate = new Date();
+      currentDate.setDate(20);
+
+      let currentMonthDate = currentDate.toISOString().substr(0, 10);
+
+      document.getElementById("salary-period-from").value = previousMonthDate;
+      document.getElementById("salary-period-to").value = currentMonthDate;
+
+      const startDate = previousMonthDate;
+      const endDate = currentMonthDate;
+      return [startDate, endDate];
+    }
+    var holidays = getWeekends(getSalaryPeriod()[0], getSalaryPeriod()[1]);
+    console.log(holidays);
+
+    function onPeriodChange() {
+      document.getElementById("holiday-dates-input").value = "";
+      var changesHolidates = getWeekends(
+        document.getElementById("salary-period-from").value,
+        document.getElementById("salary-period-to").value
+      );
+
+      holiDatePicker.setDate((date = changesHolidates));
+      // $("#holiday-dates-input").datepicker("setDates", changesHolidates);
+    }
+  </script>
+  <script>
+    var presentDates = [];
+    var nonWokingDefault = [];
+
+    function populateFileds() {
+      document.getElementById("holiday-dates-input").value = "";
+      // $("#holiday-dates-input").flatpickr({ format: "dd/mm/yyy" });
+
+      var presentInput = document.getElementById("present-days-input");
+
+      // $("#holiday-dates-input").setDate(
+      //   (date = holidays),
+      //   (dateFormat = "d/m/Y")
+      // );
+      flatpickr("#holiday-dates-input", {
+        mode: "multiple",
+        dateFormat: "d/m/Y",
+      }).setDate((date = holidays));
+
+      var nonWokrkingInput = document.getElementById("non-working-days-input");
+      // $(nonWokrkingInput).se({ dateFormat: "dd/mm/yyyy" });
+      flatpickr("#non-working-days-inputt", {
+        mode: "multiple",
+        dateFormat: "d/m/Y",
+      }).setDate((date = nonWokingDefault));
+
+      // $(nonWokrkingInput).setDate(
+      //   (date = nonWokingDefault),
+      //   (dateFormat = "d/m/Y")
+      // );
+    }
+    $(document).ready(function () {
+      flatpickr(".date-multi", {
+        mode: "multiple",
+        dateFormat: "d/m/Y",
+      });
+      $.getJSON("/get-employee-names", function (data) {
+        const selectElement = $("#employee-name-select");
+        data.forEach(function (employee) {
+          selectElement.append(
+            `<option value="${employee}">${employee}</option>`
+          );
+        });
+      });
+      populateFileds();
+    });
+  </script>
+
+  <script>
+    function updateDates() {
+      // Get the selected employee name from the select element
+      var selectedEmployeeName = document.getElementById(
+        "employee-name-select"
+      ).value;
+
+      // Fetch the employee details from the JSON file
+      fetch("/employee_details/" + selectedEmployeeName)
+        .then((response) => response.json())
+        .then((data) => {
+          // Update the date fields with the employee's period_from and period_to values
+          var period_from_date = new Date(data.period_from);
+          var isoFromDate = period_from_date.toISOString().substr(0, 10);
+          document.getElementById("period-appointment-from").value =
+            isoFromDate;
+          var period_to_date = new Date(data.period_to);
+
+          var isoToDate = period_to_date.toISOString().substr(0, 10);
+          document.getElementById("period-appointment-to").value = isoToDate;
+
+          var dateToCheck = isoToDate;
+          var referenceDate = document.getElementById("salary-period-to").value;
+
+          // Convert the date strings to Date objects
+          var dateToCheckObj = new Date(dateToCheck);
+          var referenceDateObj = new Date(referenceDate);
+
+          // Check if the first date is before the second date
+          var isBefore = dateToCheckObj < referenceDateObj;
+
+          if (isBefore) {
+            var breakDays = presentDates.filter(function (dateString) {
+              // Convert dateString to a Date object
+              var dateParts = dateString.split("/");
+              var dateObj = new Date(
+                dateParts[2],
+                dateParts[1] - 1,
+                dateParts[0]
+              );
+              // Compare with the reference date
+              return dateObj > period_to_date;
+            });
+
+            var holidaysAfterBreak = holidays.filter(function (dateString) {
+              // Convert dateString to a Date object
+              var dateParts = dateString.split("/");
+              var dateObj = new Date(
+                dateParts[2],
+                dateParts[1] - 1,
+                dateParts[0]
+              );
+              // Compare with the reference date
+              return dateObj > period_to_date;
+            });
+
+            // Check if breakDays has any elements
+            if (breakDays.length > 0) {
+              var breakDate = new Date(
+                breakDays[0].split("/").reverse().join("-")
+              )
+                .toISOString()
+                .substr(0, 10);
+              document.getElementById("salary-period-to").value = isoToDate;
+              var breakDateInput = document.getElementById("break-days-input");
+
+              // $(breakDateInput).datepicker({ format: "dd/mm/yyyy" });
+              // $(breakDateInput).datepicker("setDates", breakDays[0]);
+              flatpickr(breakDateInput, {
+                dateFormat: "d/m/Y",
+              }).setDate((date = breakDays[0]));
+
+              var userResponse = confirm(
+                "Do you want to mark the days after the contract period ends as non-working?"
+              );
+
+              if (userResponse) {
+                var nonWokrkingInput = document.getElementById(
+                  "non-working-days-input"
+                );
+                // $(nonWokrkingInput).datepicker({ format: "dd/mm/yyyy" });
+                // $(nonWokrkingInput).datepicker(
+                //   "setDates",
+                //   breakDays
+                //     .slice(1)
+                //     .concat(holidaysAfterBreak, nonWokingDefault)
+                // );
+                flatpickr(nonWokrkingInput, {
+                  mode: "multiple",
+                  dateFormat: "d/m/Y",
+                }).setDate(
+                  (date = breakDays
+                    .slice(1)
+                    .concat(holidaysAfterBreak, nonWokingDefault))
+                );
+              }
+            } else {
+              console.info(breakDays);
+            }
+          }
+        })
+        .catch((error) => console.error(error));
+    }
+  </script>
+</html>
