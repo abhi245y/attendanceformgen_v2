@@ -22,7 +22,7 @@ class EmployeeDetails:
         self.employee_id = employee_id
         self.bank_name = bank_name
         self.ifsc_code = ifsc_code
-        self.account_number = account_number
+        self.account_number = str(account_number)
         self.mobile_number = mobile_number
         self.appointment_period_from = period_from
         self.appointment_period_to = period_to

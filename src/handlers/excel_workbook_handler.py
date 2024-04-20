@@ -26,11 +26,13 @@ class ExcelWorkbookHandler:
             "break": "B",
         }
         for attendance_type, attendance_dates in attendance_data.items():
-            if attendance_dates is not None:
+            if attendance_dates is not None or len(attendance_dates) != 0:
                 mark = attendance_markings.get(attendance_type, "")
                 for date in attendance_dates:
-                    day = self.dt_util.get_day(date, "%d/%m/%Y")
-                    anCellID, fnCellID = self.config.get_an_fn_cell_id()(int(day))
+                    day = self.dt_util.get_day(
+                        target_date=date, current_format="%d/%m/%Y"
+                    )
+                    anCellID, fnCellID = self.config.get_an_fn_cell_id(day)
                     self.selected_sheet[anCellID] = mark
                     self.selected_sheet[fnCellID] = mark
 
@@ -38,15 +40,12 @@ class ExcelWorkbookHandler:
         line_char = "─"
         for date in irrelevant_dates_list:
             day = self.dt_util.get_day(date, "%d/%m/%Y")
-            anCellID, fnCellID = ExcelCellConfig.get_attendance_dates_column_id()(
-                int(day)
-            )
+            anCellID, fnCellID = self.config.get_an_fn_cell_id(day)
             max_width_of_cell = max(
-                len(str(self.selected_sheet[anCellID].value or "")),
-                len(str(self.selected_sheet[fnCellID].value or "")),
+                len(str(self.selected_sheet[anCellID].value)),
+                len(str(self.selected_sheet[fnCellID].value)),
             )
             line_string = line_char * max_width_of_cell
-
             self.selected_sheet[anCellID] = line_string
             self.selected_sheet[fnCellID] = line_string
 
@@ -63,22 +62,32 @@ class ExcelWorkbookHandler:
             OtherConfigs().get_department()
         )
         self.selected_sheet[self.config.get_period_of_appointment_from_id()] = (
-            details.employee_details.appointment_period_from
+            self.dt_util.change_format(
+                target_date=details.employee_details.appointment_period_from,
+                required_format="%d/%m/%Y",
+                current_format="%Y-%m-%d",
+            )
         )
         self.selected_sheet[self.config.get_period_of_appointment_to_id()] = (
-            details.employee_details.appointment_period_to
+            self.dt_util.change_format(
+                target_date=details.employee_details.appointment_period_to,
+                required_format="%d/%m/%Y",
+                current_format="%Y-%m-%d",
+            )
         )
-        self.selected_sheet[self.config.get_name_id()()] = details.name = (
+        self.selected_sheet[self.config.get_name_id()] = details.name = (
             details.employee_details.name
         )
 
-        if details.employee_id() != "n/a":
+        if details.employee_details.employee_id != "n/a":
             self.selected_sheet[self.config.get_employeeid_prefix_id()] = "ID"
             self.selected_sheet[self.config.get_employeeid_id()] = (
                 details.employee_details.employee_id
             )
 
-        self.selected_sheet[self.config.get_bank_branch_id()] = details.mobile_number
+        self.selected_sheet[self.config.get_bank_branch_id()] = (
+            details.employee_details.mobile_number
+        )
         self.selected_sheet[self.config.get_account_number_id()] = (
             details.employee_details.account_number
         )
@@ -91,12 +100,12 @@ class ExcelWorkbookHandler:
 
     def fill_main_certificates(self, details):
         self.selected_sheet[self.config.get_main_certififcate_id()] = (
-            CertificatesTemplate.generate_main_certififcate(details)
+            CertificatesTemplate().generate_main_certififcate(details=details)
         )
 
     def fill_holiday_certificates(self, details):
         self.selected_sheet[self.config.get_holiday_certififcate_id()] = (
-            CertificatesTemplate.generate_holiday_certififcate(details)
+            CertificatesTemplate().generate_holiday_certififcate(details=details)
         )
 
     def save(self, filePath):

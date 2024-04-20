@@ -21,7 +21,9 @@ class ConfigFileLocation:
             "output",
         )
 
-        self.db_path = os.path.join(self.project_root, "output", "main_db.sqlite")
+        self.db_path = os.path.join(
+            self.project_root, "src", "database", "main_db.sqlite"
+        )
 
     def get_excel_cell_config_path(self):
         return self.excel_cell_config
@@ -142,12 +144,12 @@ class CertificatesTemplate:
             details.employee_details.name,
             details.employee_details.post.replace("-AD-A-8", ""),
             OtherConfigs().get_department(),
-            details.present_days,
+            len(details.present_days),
             details.attendace_period_from,
             details.attendace_period_to,
-            self.gender_pronoune[details.employee_details.gender][1],
+            self.gender_pronoune(gender=details.employee_details.gender)[1],
             details.periodPerformance,
-            self.gender_pronoune[details.employee_details.gender][0],
+            self.gender_pronoune(gender=details.employee_details.gender)[0],
             details.remuneration,
             str(OtherConfigs().get_wages(details.employee_details.post)) + ".00/-",
             details.employee_details.post.lower(),

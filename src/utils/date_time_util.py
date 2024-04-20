@@ -21,10 +21,10 @@ class DateTimeUtil:
         ]
 
     def get_day(self, target_date, current_format):
-        datetime.datetime.strptime(target_date, current_format).day
+        return datetime.datetime.strptime(target_date, current_format).day
 
     def get_month(self, target_date, current_format):
-        datetime.datetime.strptime(target_date, current_format).month
+        return datetime.datetime.strptime(target_date, current_format).strftime("%B")
 
     def get_year(self, target_date, current_format):
-        datetime.datetime.strptime(target_date, current_format).year
+        return datetime.datetime.strptime(target_date, current_format).year

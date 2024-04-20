@@ -42,9 +42,12 @@ class AttendanceFormGenerator:
 
         filter_phase_1 = [date for date in all_dates if date not in self.absent_days]
         filter_phase_2 = [
-            date for date in filter_phase_1 if date not in self.holidays_lists
+            date for date in filter_phase_1 if date not in self.holidays_list
         ]
-        return [date for date in filter_phase_2 if date not in self.break_date]
+        filter_phase_3 = [
+            date for date in filter_phase_2 if date not in self.irrelevant_dates_list
+        ]
+        return [date for date in filter_phase_3 if date not in self.break_date]
 
     def calculate_remuneration(self, present_days):
         amount = int(len(present_days)) * int(
@@ -59,14 +62,38 @@ class AttendanceFormGenerator:
             VariableStorage(
                 current_employee_name=self.employee_name,
                 employee_details=self.employee_details,
-                first_month_name=self.datetime_util.get_month(
-                    target_date=self.attendance_period_from, current_format="%d/%m/%Y"
+                first_month_name=" ".join(
+                    [
+                        self.datetime_util.get_month(
+                            target_date=self.attendance_period_from,
+                            current_format="%d/%m/%Y",
+                        ),
+                        str(
+                            self.datetime_util.get_year(
+                                target_date=self.attendance_period_from,
+                                current_format="%d/%m/%Y",
+                            )
+                        ),
+                    ]
                 ),
-                second_month_name=self.datetime_util.get_month(
-                    target_date=self.attendance_period_to, current_format="%d/%m/%Y"
+                second_month_name=" ".join(
+                    [
+                        self.datetime_util.get_month(
+                            target_date=self.attendance_period_to,
+                            current_format="%d/%m/%Y",
+                        ),
+                        str(
+                            self.datetime_util.get_year(
+                                target_date=self.attendance_period_to,
+                                current_format="%d/%m/%Y",
+                            )
+                        ),
+                    ]
                 ),
             )
         )
+        if len(self.irrelevant_dates_list) != 0:
+            self.excel_handler.mark_irrelevant_dates(self.irrelevant_dates_list)
 
         present_days = self.generate_present_dates()
         self.excel_handler.mark_attendance(
@@ -77,8 +104,6 @@ class AttendanceFormGenerator:
                 "break": self.break_date,
             }
         )
-
-        self.excel_handler.mark_irrelevant_dates(self.irrelevant_dates_list)
 
         self.excel_handler.fill_main_certificates(
             VariableStorage(
@@ -99,7 +124,7 @@ class AttendanceFormGenerator:
                 )
             )
 
-        file_path = OtherConfigs().get_output_path() + "output.xlsx"
+        file_path = OtherConfigs().get_output_path() + "output.xlsm"
         self.excel_handler.save(file_path)
 
 
@@ -116,8 +141,8 @@ AttendanceFormGenerator(
     ],
     employee_name="Vinesh T",
     did_duty_on_holiday=False,
-    holiday_duty_dates=None,
-    break_date=None,
+    holiday_duty_dates=[],
+    break_date=[],
     attendance_period=["21/03/2024", "20/04/2024"],
     irrelevant_dates_list=["31/03/2024"],
 ).main()
