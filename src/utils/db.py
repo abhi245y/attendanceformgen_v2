@@ -58,7 +58,7 @@ class EmployeeDatabase:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
-    def get_employee_details(self, employee_name):
+    def get_employee_details(self, employee_name, require_json=False):
         try:
             self.connect()
             self.cursor.execute(
@@ -67,6 +67,8 @@ class EmployeeDatabase:
             res = self.cursor.fetchone()
             self.close()
             if res:
+                if require_json:
+                    return res
                 return EmployeeDetails(
                     name=res[0],
                     gender=res[1],

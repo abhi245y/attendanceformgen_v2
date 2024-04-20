@@ -40,6 +40,13 @@ class AttendanceFormGenerator:
             self.attendance_period_from, self.attendance_period_to
         )
 
+        if self.did_duty_on_holiday:
+            self.holidays_list = [
+                date
+                for date in self.holidays_list
+                if date not in self.holiday_duty_dates
+            ]
+
         filter_phase_1 = [date for date in all_dates if date not in self.absent_days]
         filter_phase_2 = [
             date for date in filter_phase_1 if date not in self.holidays_list
@@ -129,7 +136,7 @@ class AttendanceFormGenerator:
 
 
 AttendanceFormGenerator(
-    absent_days=[],
+    absent_days=["01/04/2024"],
     holidays_list=[
         "24/03/2024",
         "28/03/2024",
@@ -140,8 +147,8 @@ AttendanceFormGenerator(
         "14/04/2024",
     ],
     employee_name="Vinesh T",
-    did_duty_on_holiday=False,
-    holiday_duty_dates=[],
+    did_duty_on_holiday=True,
+    holiday_duty_dates=["24/03/2024"],
     break_date=[],
     attendance_period=["21/03/2024", "20/04/2024"],
     irrelevant_dates_list=["31/03/2024"],

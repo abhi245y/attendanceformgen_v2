@@ -157,6 +157,6 @@ class CertificatesTemplate:
 
     def generate_holiday_certififcate(self, details: VariableStorage):
         return self.config["holidayCertificate"].format(
-            self.gender_pronoune[details.employee_details.gender][1],
+            self.gender_pronoune(gender=details.employee_details.gender)[1],
             details.holiday_duty_dates,
         )

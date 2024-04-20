@@ -86,7 +86,7 @@ class ExcelWorkbookHandler:
             )
 
         self.selected_sheet[self.config.get_bank_branch_id()] = (
-            details.employee_details.mobile_number
+            details.employee_details.bank_name
         )
         self.selected_sheet[self.config.get_account_number_id()] = (
             details.employee_details.account_number
