@@ -29,25 +29,33 @@ class ExcelWorkbookHandler:
             if attendance_dates is not None or len(attendance_dates) != 0:
                 mark = attendance_markings.get(attendance_type, "")
                 for date in attendance_dates:
-                    day = self.dt_util.get_day(
-                        target_date=date, current_format="%d/%m/%Y"
-                    )
-                    anCellID, fnCellID = self.config.get_an_fn_cell_id(day)
-                    self.selected_sheet[anCellID] = mark
-                    self.selected_sheet[fnCellID] = mark
+                    try:
+                        day = self.dt_util.get_day(
+                            target_date=date, current_format="%d/%m/%Y"
+                        )
+                        anCellID, fnCellID = self.config.get_an_fn_cell_id(day)
+                        self.selected_sheet[anCellID] = mark
+                        self.selected_sheet[fnCellID] = mark
+                    except Exception as e:
+                        print(f"Error in mark_attendance():{e}")
+                        pass
 
     def mark_irrelevant_dates(self, irrelevant_dates_list):
-        line_char = "─"
+        line_char = "-"
         for date in irrelevant_dates_list:
-            day = self.dt_util.get_day(date, "%d/%m/%Y")
-            anCellID, fnCellID = self.config.get_an_fn_cell_id(day)
-            max_width_of_cell = max(
-                len(str(self.selected_sheet[anCellID].value)),
-                len(str(self.selected_sheet[fnCellID].value)),
-            )
-            line_string = line_char * max_width_of_cell
-            self.selected_sheet[anCellID] = line_string
-            self.selected_sheet[fnCellID] = line_string
+            try:
+                day = self.dt_util.get_day(date, "%d/%m/%Y")
+                anCellID, fnCellID = self.config.get_an_fn_cell_id(day)
+                max_width_of_cell = max(
+                    len(str(self.selected_sheet[anCellID].value)),
+                    len(str(self.selected_sheet[fnCellID].value)),
+                )
+                line_string = line_char * max_width_of_cell
+                self.selected_sheet[anCellID] = line_string
+                self.selected_sheet[fnCellID] = line_string
+            except Exception as e:
+                print(f"Error in mark_irrelevant_dates():{e}")
+                pass
 
     def fill_basic_info(self, details: VariableStorage):
         self.selected_sheet[self.config.get_first_half_column_id()] = (
@@ -75,12 +83,31 @@ class ExcelWorkbookHandler:
                 current_format="%Y-%m-%d",
             )
         )
-        self.selected_sheet[self.config.get_name_id()] = details.name = (
-            details.employee_details.name
-        )
+
+        if details.did_the_contract_extend:
+            extension_pre, extension_suf = self.config.get_extension_prefix_sufix_id()
+            self.selected_sheet[extension_pre] = "Period Of Extension From:"
+            self.selected_sheet[extension_suf] = "To:"
+
+            self.selected_sheet[self.config.get_period_of_extension_from_id()] = (
+                self.dt_util.change_format(
+                    target_date=details.new_contract_period[0],
+                    required_format="%d/%m/%Y",
+                    current_format="%Y-%m-%d",
+                )
+            )
+            self.selected_sheet[self.config.get_period_of_extension_to_id()] = (
+                self.dt_util.change_format(
+                    target_date=details.new_contract_period[1],
+                    required_format="%d/%m/%Y",
+                    current_format="%Y-%m-%d",
+                )
+            )
+
+        self.selected_sheet[self.config.get_name_id()] = details.employee_details.name
 
         if details.employee_details.employee_id != "n/a":
-            self.selected_sheet[self.config.get_employeeid_prefix_id()] = "ID"
+            self.selected_sheet[self.config.get_employeeid_prefix_id()] = "ID:"
             self.selected_sheet[self.config.get_employeeid_id()] = (
                 details.employee_details.employee_id
             )

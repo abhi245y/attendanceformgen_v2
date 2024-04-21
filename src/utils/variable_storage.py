@@ -11,6 +11,8 @@ class VariableStorage:
         periodPerformance=None,
         remuneration=None,
         holiday_duty_dates=None,
+        did_the_contract_extend=None,
+        new_contract_period=None,
     ):
         self.current_employee_name = current_employee_name
         self.first_month_name = first_month_name
@@ -22,3 +24,5 @@ class VariableStorage:
         self.periodPerformance = periodPerformance
         self.remuneration = remuneration
         self.holiday_duty_dates = holiday_duty_dates
+        self.did_the_contract_extend = did_the_contract_extend
+        self.new_contract_period = new_contract_period

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html data-theme="light">
+<html data-theme="dark">
   <head>
     <title>Attendance Form Generate</title>
     <!-- <link
@@ -105,7 +105,7 @@
                         id="overide-check"
                         name="overide-check"
                       />
-                      Overide this period?
+                      Override this period?
                     </label>
                     <pre></pre>
                   </article>
@@ -209,19 +209,25 @@
                     an employee's contract period.
                   </p>
                 </details>
-                <input
-                  type="date"
-                  placeholder="MM/DD/YYYY"
-                  id="break-days-input"
-                  name="break-days"
-                />
+                <fieldset role="group">
+                  <input
+                    type="date"
+                    placeholder="MM/DD/YYYY"
+                    id="break-days-input"
+                    name="break-days"
+                  />
+                  <input
+                    type="button"
+                    value="Clear"
+                    onclick="document.querySelector('#break-days-input').value = '' "
+                  />
+                </fieldset>
               </article>
               <article>
                 <legend><h5>Miscellaneous:</h5></legend>
                 <label>
                   <small
-                    >Did the employee wokred on Holidays or
-                    Stike/harthal?</small
+                    >Did the employee work on Holidays/Stike/Harthal?</small
                   >
                   <input
                     type="checkbox"
@@ -239,6 +245,33 @@
                   hidden
                   class="date-multi"
                 />
+                <label>
+                  <small>Did the contract extend?</small>
+                  <input
+                    type="checkbox"
+                    id="new-contract-period-check"
+                    name="new-contract-period"
+                    onchange="checkCheckBox(this.id)"
+                  />
+                </label>
+                <div id="new-contract-period-div" hidden>
+                  <label>
+                    <h6>From</h6>
+                    <input
+                      type="date"
+                      placeholder="MM/DD/YYYY"
+                      id="new-contract-period-from"
+                      name="new-contract-period-from"
+                  /></label>
+                  <label>
+                    <h6>To</h6>
+                    <input
+                      type="date"
+                      placeholder="MM/DD/YYYY"
+                      id="new-contract-period-to"
+                      name="new-contract-period-to"
+                  /></label>
+                </div>
               </article>
             </div>
             <input type="submit" value="Generate" />
@@ -257,10 +290,18 @@
           ></button>
           <h3>Confirm your action!</h3>
         </header>
-        <p>
-          Do you want to mark the days after the contract period ends as
-          non-working?
-        </p>
+        <p>Do you want to mark break automatically</p>
+        <label
+          ><small
+            >Also mark the days after the contract period ends as non-working?
+          </small>
+          <input
+            type="checkbox"
+            id="mark-nonworking-after-contract"
+            name="mark-nonworking-after-contract"
+          />
+        </label>
+
         <footer>
           <button
             role="button"
@@ -291,11 +332,19 @@
           document
             .querySelector("#holiday-duty-dates-input")
             .removeAttribute("hidden");
+        } else if (checkId === "new-contract-period-check") {
+          document
+            .querySelector("#new-contract-period-div")
+            .removeAttribute("hidden");
         }
       } else if (cb.checked === false) {
         if (checkId === "holiday-duty-certificate-check") {
           document
             .querySelector("#holiday-duty-dates-input")
+            .setAttribute("hidden", "");
+        } else if (checkId === "new-contract-period-check") {
+          document
+            .querySelector("#new-contract-period-div")
             .setAttribute("hidden", "");
         }
       }
@@ -401,14 +450,9 @@
 
     function populateFileds() {
       document.getElementById("holiday-dates-input").value = "";
-      // $("#holiday-dates-input").flatpickr({ format: "dd/mm/yyy" });
 
       var presentInput = document.getElementById("present-days-input");
 
-      // $("#holiday-dates-input").setDate(
-      //   (date = holidays),
-      //   (dateFormat = "d/m/Y")
-      // );
       var holiDatePicker = flatpickr("#holiday-dates-input", {
         mode: "multiple",
         dateFormat: "d/m/Y",
@@ -416,17 +460,11 @@
       holiDatePicker.setDate(holidays);
 
       var nonWokrkingInput = document.getElementById("non-working-days-input");
-      // $(nonWokrkingInput).se({ dateFormat: "dd/mm/yyyy" });
       var nonWorkingDatePicker = flatpickr("#non-working-days-input", {
         mode: "multiple",
         dateFormat: "d/m/Y",
       });
       nonWorkingDatePicker.setDate(nonWokingDefault);
-
-      // $(nonWokrkingInput).setDate(
-      //   (date = nonWokingDefault),
-      //   (dateFormat = "d/m/Y")
-      // );
     }
   </script>
 
@@ -528,40 +566,30 @@
           console.log(dateToCheckObj, referenceDateObj, isBefore);
 
           if (isBefore) {
-            var breakDay = getNextWorkingDay(dateToCheckObj);
-            console.log(breakDay);
-
-            var holidaysAfterBreak = holiDatePicker.selectedDates.filter(
-              (dateObj) => dateObj > new Date(period_to_date)
-            );
-            breakDatePicker.setDate(breakDay);
-
             confirmModal().then((confirmed) => {
-              if (confirmed) {
-                // User confirmed, perform desired action
+              var breakDay = getNextWorkingDay(dateToCheckObj);
+              console.log(breakDay);
+
+              breakDatePicker.setDate(breakDay);
+
+              if (
+                document.querySelector("#mark-nonworking-after-contract")
+                  .checked
+              ) {
                 nonWorkingDatePicker.setDate(
                   generateDaysInRange(
                     new Date(breakDay).setDate(breakDay.getDate() + 1),
                     referenceDate
                   )
                 );
-                console.log("User confirmed");
-              } else {
-                // User canceled, perform alternative action
-                console.log("User canceled");
+
+                var holidaysAfterBreak = holiDatePicker.selectedDates.filter(
+                  (dateObj) => dateObj < new Date(period_to_date)
+                );
+                holiDatePicker.clear();
+                holiDatePicker.setDate(holidaysAfterBreak);
               }
             });
-
-            // var userResponse = confirm(
-            //   "Do you want to mark the days after the contract period ends as non-working?"
-            // );
-
-            // if (userResponse) {
-            //   var nonWokrkingInput = document.getElementById(
-            //     "non-working-days-input"
-            //   );
-
-            // }
           }
         })
         .catch((error) => console.error(error));

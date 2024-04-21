@@ -1,6 +1,7 @@
 from flask import Flask, render_template, jsonify, request, redirect
 from utils.db import EmployeeDatabase
-
+from attendance_form_generator import AttendanceFormGenerator
+from utils.date_time_util import DateTimeUtil
 
 app = Flask(
     __name__,
@@ -34,32 +35,46 @@ def get_employee_details(employee_name):
 @app.route("/processing", methods=["GET", "POST"])
 def processData():
     if request.method == "POST":
-        employee_name = request.form.getlist("employee-name")
+        employee_name = request.form.getlist("employee-name")[0]
         appointment_period_overide_check = (
             True if request.form.get("overide-check") else False
         )
-        print(type(appointment_period_overide_check))
-        appointment_period_from = request.form.get("period-appointment-from")
-        appointment_period_to = request.form.get("period-appointment-to")
+        period_appointment_from = request.form.get("period-appointment-from")
+        period_appointment_to = request.form.get("period-appointment-to")
+
         salary_period = [
-            str(request.form.get("salary-period-from")),
-            str(request.form.get("salary-period-to")),
+            DateTimeUtil().change_format(
+                "%d/%m/%Y", "%Y-%m-%d", request.form.get("salary-period-from")
+            ),
+            DateTimeUtil().change_format(
+                "%d/%m/%Y", "%Y-%m-%d", request.form.get("salary-period-to")
+            ),
         ]
-        absent_days = request.form.get("absent-days").split(",")
-        holiday_dates = request.form.get("holiday-dates").split(",")
+        absent_days = request.form.get("absent-days").replace(" ", "").split(",")
+        holiday_dates = request.form.get("holiday-dates").replace(" ", "").split(",")
 
         break_days = [request.form.get("break-days")]
-        irrelevant_dates_list = request.form.get("non-working-days").split(",")
+        irrelevant_dates_list = (
+            request.form.get("non-working-days").replace(" ", "").split(",")
+        )
         did_duty_on_holiday = (
             True if request.form.get("holiday-duty-certificate") else False
         )
-        holiday_duty_dates = request.form.get("holiday-duty-dates").split(",")
+        holiday_duty_dates = (
+            request.form.get("holiday-duty-dates").replace(" ", "").split(",")
+        )
+        did_the_contract_extend = (
+            True if request.form.get("new-contract-period") else False
+        )
+
+        new_contract_period_from = request.form.get("new-contract-period-from")
+        new_contract_period_to = request.form.get("new-contract-period-to")
 
         print(
             employee_name,
             appointment_period_overide_check,
-            appointment_period_from,
-            appointment_period_to,
+            period_appointment_from,
+            period_appointment_to,
             salary_period,
             absent_days,
             holiday_dates,
@@ -68,6 +83,18 @@ def processData():
             did_duty_on_holiday,
             holiday_duty_dates,
         )
+        AttendanceFormGenerator(
+            absent_days=absent_days,
+            holidays_list=holiday_dates,
+            employee_name=employee_name,
+            did_duty_on_holiday=did_duty_on_holiday,
+            holiday_duty_dates=holiday_duty_dates,
+            break_date=break_days,
+            attendance_period=salary_period,
+            irrelevant_dates_list=irrelevant_dates_list,
+            did_the_contract_extend=did_the_contract_extend,
+            new_contract_period=[new_contract_period_from, new_contract_period_to],
+        ).main()
         return redirect(request.referrer)
 
 

@@ -17,6 +17,8 @@ class AttendanceFormGenerator:
         break_date,
         attendance_period,
         irrelevant_dates_list,
+        did_the_contract_extend,
+        new_contract_period,
     ):
         self.absent_days = absent_days
         self.holidays_list = holidays_list
@@ -34,6 +36,8 @@ class AttendanceFormGenerator:
         self.employee_db.connect()
         self.employee_details = self.employee_db.get_employee_details(employee_name)
         self.datetime_util = DateTimeUtil()
+        self.did_the_contract_extend = did_the_contract_extend
+        self.new_contract_period = new_contract_period
 
     def generate_present_dates(self):
         all_dates = self.datetime_util.generate_dates(
@@ -97,6 +101,8 @@ class AttendanceFormGenerator:
                         ),
                     ]
                 ),
+                did_the_contract_extend=self.did_the_contract_extend,
+                new_contract_period=self.new_contract_period,
             )
         )
         if len(self.irrelevant_dates_list) != 0:
@@ -131,25 +137,25 @@ class AttendanceFormGenerator:
                 )
             )
 
-        file_path = OtherConfigs().get_output_path() + "output.xlsm"
+        file_path = OtherConfigs().get_output_path() + self.employee_name + ".xlsm"
         self.excel_handler.save(file_path)
 
 
-AttendanceFormGenerator(
-    absent_days=["01/04/2024"],
-    holidays_list=[
-        "24/03/2024",
-        "28/03/2024",
-        "29/03/2024",
-        "07/04/2024",
-        "10/04/2024",
-        "13/04/2024",
-        "14/04/2024",
-    ],
-    employee_name="Vinesh T",
-    did_duty_on_holiday=True,
-    holiday_duty_dates=["24/03/2024"],
-    break_date=[],
-    attendance_period=["21/03/2024", "20/04/2024"],
-    irrelevant_dates_list=["31/03/2024"],
-).main()
+# AttendanceFormGenerator(
+#     absent_days=["01/04/2024"],
+#     holidays_list=[
+#         "24/03/2024",
+#         "28/03/2024",
+#         "29/03/2024",
+#         "07/04/2024",
+#         "10/04/2024",
+#         "13/04/2024",
+#         "14/04/2024",
+#     ],
+#     employee_name="Vinesh T",
+#     did_duty_on_holiday=True,
+#     holiday_duty_dates=["24/03/2024"],
+#     break_date=[],
+#     attendance_period=["21/03/2024", "20/04/2024"],
+#     irrelevant_dates_list=["31/03/2024"],
+# ).main()

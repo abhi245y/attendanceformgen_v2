@@ -96,9 +96,12 @@ class EmployeeDatabase:
                 print(f"Error No Details Found For: {employee_name}")
                 return None
         except sqlite3.Error as e:
-            print(f"Error retrieving employee details: {e}")
+            print(
+                f"Error retrieving employee details (get_employee_details): {e}",
+                employee_name,
+            )
             return JsonPayLoadStructure(
-                "Error retrieving employee details", None
+                "Error retrieving employee details (get_employee_details)", None
             ).get_payload()
 
     def get_employee_list(self):
@@ -111,5 +114,5 @@ class EmployeeDatabase:
         except sqlite3.Error as e:
             print(f"Error retrieving employee list: {e}")
             return JsonPayLoadStructure(
-                "Error retrieving employee details", None
+                "Error retrieving employee list (get_employee_list)", None
             ).get_payload()

@@ -84,6 +84,15 @@ class ExcelCellConfig:
     def get_period_of_appointment_to_id(self):
         return self.config["periodOfAppointmentTo"]
 
+    def get_period_of_extension_from_id(self):
+        return self.config["periodofExtensionFrom"]
+
+    def get_period_of_extension_to_id(self):
+        return self.config["periodofExtensionTo"]
+
+    def get_extension_prefix_sufix_id(self):
+        return self.config["extensionPrefix"], self.config["extensionSufix"]
+
     def get_employeeid_id(self):
         return self.config["employeeID"]
 
