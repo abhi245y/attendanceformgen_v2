@@ -23,6 +23,7 @@
       media="screen"
       href="{{ url_for('static',filename='styles/flatpicker-pico-theme.css') }}"
     />
+    <script src="{{ url_for('static',filename='scripts/modal.js') }}"></script>
     <script
       src="https://code.jquery.com/jquery-3.7.1.min.js"
       integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
@@ -245,6 +246,41 @@
         </article>
       </div>
     </main>
+    <dialog id="modal-example">
+      <article>
+        <header>
+          <button
+            aria-label="Close"
+            rel="prev"
+            data-target="modal-example"
+            onclick="toggleModal(event)"
+          ></button>
+          <h3>Confirm your action!</h3>
+        </header>
+        <p>
+          Do you want to mark the days after the contract period ends as
+          non-working?
+        </p>
+        <footer>
+          <button
+            role="button"
+            class="secondary"
+            id="cancel-button"
+            data-target="modal-example"
+            onclick="toggleModal(event)"
+          >
+            Cancel</button
+          ><button
+            autofocus
+            id="confirm-button"
+            data-target="modal-example"
+            onclick="toggleModal(event)"
+          >
+            Confirm
+          </button>
+        </footer>
+      </article>
+    </dialog>
   </body>
   <script>
     function checkCheckBox(checkId) {
@@ -266,14 +302,6 @@
     }
   </script>
   <script>
-    holiDatePicker = flatpickr("#holiday-dates-input", {
-      mode: "multiple",
-      dateFormat: "d/m/Y",
-    });
-    nonWorkingDatePicker = flatpickr("#holiday-dates-input", {
-      mode: "multiple",
-      dateFormat: "d/m/Y",
-    });
     function getWeekends(startDateStr, endDateStr) {
       const weekends = [];
       const startDate = new Date(startDateStr);
@@ -335,7 +363,6 @@
       return [startDate, endDate];
     }
     var holidays = getWeekends(getSalaryPeriod()[0], getSalaryPeriod()[1]);
-    console.log(holidays);
 
     function onPeriodChange() {
       document.getElementById("holiday-dates-input").value = "";
@@ -343,14 +370,34 @@
         document.getElementById("salary-period-from").value,
         document.getElementById("salary-period-to").value
       );
+      var holiDatePicker = flatpickr("#holiday-dates-input", {
+        mode: "multiple",
+        dateFormat: "d/m/Y",
+      });
 
-      holiDatePicker.setDate((date = changesHolidates));
-      // $("#holiday-dates-input").datepicker("setDates", changesHolidates);
+      holiDatePicker.setDate(changesHolidates);
     }
   </script>
   <script>
     var presentDates = [];
     var nonWokingDefault = [];
+    $(document).ready(function () {
+      flatpickr(".date-multi", {
+        mode: "multiple",
+        dateFormat: "d/m/Y",
+      });
+
+      $.getJSON("/get-employee-names", function (data) {
+        const selectElement = $("#employee-name-select");
+        data.forEach(function (employee) {
+          selectElement.append(
+            `<option value="${employee}">${employee}</option>`
+          );
+        });
+      });
+
+      populateFileds();
+    });
 
     function populateFileds() {
       document.getElementById("holiday-dates-input").value = "";
@@ -362,46 +409,98 @@
       //   (date = holidays),
       //   (dateFormat = "d/m/Y")
       // );
-      flatpickr("#holiday-dates-input", {
+      var holiDatePicker = flatpickr("#holiday-dates-input", {
         mode: "multiple",
         dateFormat: "d/m/Y",
-      }).setDate((date = holidays));
+      });
+      holiDatePicker.setDate(holidays);
 
       var nonWokrkingInput = document.getElementById("non-working-days-input");
       // $(nonWokrkingInput).se({ dateFormat: "dd/mm/yyyy" });
-      flatpickr("#non-working-days-inputt", {
+      var nonWorkingDatePicker = flatpickr("#non-working-days-input", {
         mode: "multiple",
         dateFormat: "d/m/Y",
-      }).setDate((date = nonWokingDefault));
+      });
+      nonWorkingDatePicker.setDate(nonWokingDefault);
 
       // $(nonWokrkingInput).setDate(
       //   (date = nonWokingDefault),
       //   (dateFormat = "d/m/Y")
       // );
     }
-    $(document).ready(function () {
-      flatpickr(".date-multi", {
-        mode: "multiple",
-        dateFormat: "d/m/Y",
-      });
-      $.getJSON("/get-employee-names", function (data) {
-        const selectElement = $("#employee-name-select");
-        data.forEach(function (employee) {
-          selectElement.append(
-            `<option value="${employee}">${employee}</option>`
-          );
-        });
-      });
-      populateFileds();
-    });
   </script>
 
   <script>
+    function getNextWorkingDay(currentDate, daysToAdd = 1) {
+      const nextDate = new Date(currentDate);
+      let daysAdded = 0;
+
+      // Get the holiday dates from the input field
+      const holidayDatesInput = document.getElementById("holiday-dates-input");
+      const holidayDates = holidayDatesInput
+        ? holidayDatesInput.value
+            .split(",")
+            .map((date) => new Date(date.trim()))
+        : [];
+
+      while (daysAdded < daysToAdd) {
+        nextDate.setDate(nextDate.getDate() + 1);
+
+        // Check if the day is the second Saturday of the month
+        const isSecondSaturdayOfMonth =
+          nextDate.getDay() === 6 &&
+          nextDate.getDate() >= 8 &&
+          nextDate.getDate() <= 14;
+
+        // Check if the day is a holiday date
+        const isHolidayDate = holidayDates.some(
+          (date) => date.toDateString() === nextDate.toDateString()
+        );
+
+        if (
+          !isSecondSaturdayOfMonth &&
+          !isHolidayDate &&
+          nextDate.getDay() !== 0
+        ) {
+          // If the day is not the second Saturday of the month, not a holiday date, and not a Sunday
+          daysAdded++;
+        }
+      }
+
+      return nextDate;
+    }
+    function generateDaysInRange(startDate, endDate) {
+      const days = [];
+      const currentDate = new Date(startDate);
+      const end = new Date(endDate);
+
+      while (currentDate <= end) {
+        days.push(currentDate.toLocaleDateString("en-GB"));
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      return days;
+    }
+
     function updateDates() {
       // Get the selected employee name from the select element
       var selectedEmployeeName = document.getElementById(
         "employee-name-select"
       ).value;
+
+      var holiDatePicker = flatpickr("#holiday-dates-input", {
+        mode: "multiple",
+        dateFormat: "d/m/Y",
+      });
+
+      var breakDatePicker = flatpickr("#break-days-input", {
+        dateFormat: "d/m/Y",
+      });
+
+      var nonWorkingDatePicker = flatpickr("#non-working-days-input", {
+        mode: "multiple",
+        dateFormat: "d/m/Y",
+      });
 
       // Fetch the employee details from the JSON file
       fetch("/employee_details/" + selectedEmployeeName)
@@ -426,75 +525,43 @@
 
           // Check if the first date is before the second date
           var isBefore = dateToCheckObj < referenceDateObj;
+          console.log(dateToCheckObj, referenceDateObj, isBefore);
 
           if (isBefore) {
-            var breakDays = presentDates.filter(function (dateString) {
-              // Convert dateString to a Date object
-              var dateParts = dateString.split("/");
-              var dateObj = new Date(
-                dateParts[2],
-                dateParts[1] - 1,
-                dateParts[0]
-              );
-              // Compare with the reference date
-              return dateObj > period_to_date;
-            });
+            var breakDay = getNextWorkingDay(dateToCheckObj);
+            console.log(breakDay);
 
-            var holidaysAfterBreak = holidays.filter(function (dateString) {
-              // Convert dateString to a Date object
-              var dateParts = dateString.split("/");
-              var dateObj = new Date(
-                dateParts[2],
-                dateParts[1] - 1,
-                dateParts[0]
-              );
-              // Compare with the reference date
-              return dateObj > period_to_date;
-            });
+            var holidaysAfterBreak = holiDatePicker.selectedDates.filter(
+              (dateObj) => dateObj > new Date(period_to_date)
+            );
+            breakDatePicker.setDate(breakDay);
 
-            // Check if breakDays has any elements
-            if (breakDays.length > 0) {
-              var breakDate = new Date(
-                breakDays[0].split("/").reverse().join("-")
-              )
-                .toISOString()
-                .substr(0, 10);
-              document.getElementById("salary-period-to").value = isoToDate;
-              var breakDateInput = document.getElementById("break-days-input");
-
-              // $(breakDateInput).datepicker({ format: "dd/mm/yyyy" });
-              // $(breakDateInput).datepicker("setDates", breakDays[0]);
-              flatpickr(breakDateInput, {
-                dateFormat: "d/m/Y",
-              }).setDate((date = breakDays[0]));
-
-              var userResponse = confirm(
-                "Do you want to mark the days after the contract period ends as non-working?"
-              );
-
-              if (userResponse) {
-                var nonWokrkingInput = document.getElementById(
-                  "non-working-days-input"
+            confirmModal().then((confirmed) => {
+              if (confirmed) {
+                // User confirmed, perform desired action
+                nonWorkingDatePicker.setDate(
+                  generateDaysInRange(
+                    new Date(breakDay).setDate(breakDay.getDate() + 1),
+                    referenceDate
+                  )
                 );
-                // $(nonWokrkingInput).datepicker({ format: "dd/mm/yyyy" });
-                // $(nonWokrkingInput).datepicker(
-                //   "setDates",
-                //   breakDays
-                //     .slice(1)
-                //     .concat(holidaysAfterBreak, nonWokingDefault)
-                // );
-                flatpickr(nonWokrkingInput, {
-                  mode: "multiple",
-                  dateFormat: "d/m/Y",
-                }).setDate(
-                  (date = breakDays
-                    .slice(1)
-                    .concat(holidaysAfterBreak, nonWokingDefault))
-                );
+                console.log("User confirmed");
+              } else {
+                // User canceled, perform alternative action
+                console.log("User canceled");
               }
-            } else {
-              console.info(breakDays);
-            }
+            });
+
+            // var userResponse = confirm(
+            //   "Do you want to mark the days after the contract period ends as non-working?"
+            // );
+
+            // if (userResponse) {
+            //   var nonWokrkingInput = document.getElementById(
+            //     "non-working-days-input"
+            //   );
+
+            // }
           }
         })
         .catch((error) => console.error(error));
