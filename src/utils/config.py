@@ -161,11 +161,11 @@ class CertificatesTemplate:
             self.gender_pronoune(gender=details.employee_details.gender)[0],
             details.remuneration,
             str(OtherConfigs().get_wages(details.employee_details.post)) + ".00/-",
-            details.employee_details.post.lower(),
+            details.employee_details.post.replace("-AD-A-8", "").lower(),
         )
 
     def generate_holiday_certififcate(self, details: VariableStorage):
         return self.config["holidayCertificate"].format(
-            self.gender_pronoune(gender=details.employee_details.gender)[1],
+            self.gender_pronoune(gender=details.employee_details.gender)[0].lower(),
             details.holiday_duty_dates,
         )
