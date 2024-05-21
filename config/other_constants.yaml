@@ -1,8 +1,12 @@
 mainCertififcate: "Certified that Sri.{}, Casual {} has worked in {} section for {} days during the period from {} to {} and {} work and conduct during the period was {}. {} is eligible to claim Rs {} @ Rs {} per day. Certified that this amount has not been claimed earlier.\nThe bank details noted above has been verified against the original documents produced by the casual {}."
+buggyDriverCertificate: "Certified that Sri.{}, (Engaged as Buggy Operator on daily wages basis in the kariavattom Campus and assigned with duties in the CD Unit Section) has worked in {} section for {} days during the period from {} to {} and his work and conduct during the period was {}. He is eligible to claim Rs {} @ Rs {} per day. Certified that this amount has not been claimed earlier.\nThe bank details noted above has been verified against the original documents produced by the casual buggy operator."
 holidayCertificate: "Certified that {} had attended duty on holidays on {}."
 labourerPerDayWage: 675
 messengerPerDayWage: 675
-driverPerDayWage: 725
+buggyDriverPerDayWage: 730
+contractDriverPerDayWage: 725
 department: "CD Unit"
 db_path: "/src/database/main_db.sqlite"
-output_save_path: "./output/"
+output_save_path: "/home/user/Desktop/Attendence_Forms"
+contract_messengers_section: "EA I"
+daily_wages_employee_section: "AD A VIII"

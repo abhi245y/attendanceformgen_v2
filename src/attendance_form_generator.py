@@ -4,6 +4,7 @@ from utils.variable_storage import VariableStorage
 from utils.date_time_util import DateTimeUtil
 from utils.config import OtherConfigs, ConfigFileLocation
 from utils.number_word_converter import NumberConverter
+import os
 
 
 class AttendanceFormGenerator:
@@ -118,16 +119,29 @@ class AttendanceFormGenerator:
             }
         )
 
-        self.excel_handler.fill_main_certificates(
-            VariableStorage(
-                employee_details=self.employee_details,
-                present_days=present_days,
-                attendace_period_from=self.attendance_period_from,
-                attendace_period_to=self.attendance_period_to,
-                periodPerformance="satisfactory",
-                remuneration=self.calculate_remuneration(present_days=present_days),
+        if self.employee_details.post == "Buggy Operator":
+            self.excel_handler.fill_buggy_operator_certificates(
+                VariableStorage(
+                    employee_details=self.employee_details,
+                    present_days=present_days,
+                    attendace_period_from=self.attendance_period_from,
+                    attendace_period_to=self.attendance_period_to,
+                    periodPerformance="satisfactory",
+                    remuneration=self.calculate_remuneration(present_days=present_days),
+                )
             )
-        )
+            pass
+        else:
+            self.excel_handler.fill_main_certificates(
+                VariableStorage(
+                    employee_details=self.employee_details,
+                    present_days=present_days,
+                    attendace_period_from=self.attendance_period_from,
+                    attendace_period_to=self.attendance_period_to,
+                    periodPerformance="satisfactory",
+                    remuneration=self.calculate_remuneration(present_days=present_days),
+                )
+            )
 
         if self.did_duty_on_holiday:
             self.excel_handler.fill_holiday_certificates(
@@ -137,8 +151,30 @@ class AttendanceFormGenerator:
                 )
             )
 
-        file_path = OtherConfigs().get_output_path() + self.employee_name + ".xlsm"
-        self.excel_handler.save(file_path)
+        save_path = OtherConfigs().get_output_path(
+            post=self.employee_details.post,
+            current_month=" ".join(
+                [
+                    self.datetime_util.get_month(
+                        target_date=self.attendance_period_to,
+                        current_format="%d/%m/%Y",
+                    ),
+                    str(
+                        self.datetime_util.get_year(
+                            target_date=self.attendance_period_to,
+                            current_format="%d/%m/%Y",
+                        )
+                    ),
+                ]
+            ),
+        )
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
+            file_absolute_path = save_path + f"/{self.employee_name}" + ".xlsm"
+        else:
+            file_absolute_path = save_path + f"/{self.employee_name}" + ".xlsm"
+
+        self.excel_handler.save(file_absolute_path)
 
 
 # AttendanceFormGenerator(

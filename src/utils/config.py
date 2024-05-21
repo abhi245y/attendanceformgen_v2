@@ -56,6 +56,8 @@ class OtherConfigs:
             return self.config["labourerPerDayWage"]
         elif post == "Driver":
             return self.config["driverPerDayWage"]
+        elif post == "Buggy Operator":
+            return self.config["buggyDriverPerDayWage"]
 
     def get_department(self):
         return self.config["department"]
@@ -63,8 +65,21 @@ class OtherConfigs:
     def get_db_path(self):
         return self.config["db_path"]
 
-    def get_output_path(self):
-        return self.config["output_save_path"]
+    def get_output_path(self, current_month, post):
+        if post == "Messenger":
+            return (
+                self.config["output_save_path"]
+                + f"/{current_month}/"
+                + self.config["contract_messengers_section"]
+            )
+        elif post == "Messenger-AD-A-8" or post == "Labourer":
+            return (
+                self.config["output_save_path"]
+                + f"/{current_month}/"
+                + self.config["daily_wages_employee_section"]
+            )
+        elif post == "Buggy Operator":
+            return self.config["output_save_path"] + f"/{current_month}/" + post
 
 
 class ExcelCellConfig:
@@ -168,4 +183,16 @@ class CertificatesTemplate:
         return self.config["holidayCertificate"].format(
             self.gender_pronoune(gender=details.employee_details.gender)[0].lower(),
             details.holiday_duty_dates,
+        )
+
+    def generate_buggy_operator_certificate(self, details: VariableStorage):
+        return self.config["buggyDriverCertificate"].format(
+            details.employee_details.name,
+            OtherConfigs().get_department(),
+            len(details.present_days),
+            details.attendace_period_from,
+            details.attendace_period_to,
+            details.periodPerformance,
+            details.remuneration,
+            str(OtherConfigs().get_wages(details.employee_details.post)) + ".00/-",
         )

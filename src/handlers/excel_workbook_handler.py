@@ -130,6 +130,11 @@ class ExcelWorkbookHandler:
             CertificatesTemplate().generate_main_certififcate(details=details)
         )
 
+    def fill_buggy_operator_certificates(self, details):
+        self.selected_sheet[self.config.get_main_certififcate_id()] = (
+            CertificatesTemplate().generate_buggy_operator_certificate(details=details)
+        )
+
     def fill_holiday_certificates(self, details):
         self.selected_sheet[self.config.get_holiday_certififcate_id()] = (
             CertificatesTemplate().generate_holiday_certififcate(details=details)
