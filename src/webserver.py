@@ -13,6 +13,10 @@ app = Flask(
 emp_db = EmployeeDatabase()
 
 
+def is_not_empty_or_whitespace(s):
+    return bool(s.strip())
+
+
 @app.route("/get-employee-names")
 def get_employee_names():
     res = emp_db.get_employee_list()
@@ -50,13 +54,19 @@ def processData():
                 "%d/%m/%Y", "%Y-%m-%d", request.form.get("salary-period-to")
             ),
         ]
-        absent_days = request.form.get("absent-days").replace(" ", "").split(",")
+        if (
+            request.form.get("non-working-days") == " "
+            or request.form.get("non-working-days") == ""
+        ):
+            absent_days = request.form.get("absent-days").replace(" ", "").split(",")
         holiday_dates = request.form.get("holiday-dates").replace(" ", "").split(",")
 
         break_days = [request.form.get("break-days")]
-        irrelevant_dates_list = (
-            request.form.get("non-working-days").replace(" ", "").split(",")
-        )
+        if not is_not_empty_or_whitespace(request.form.get("non-working-days")):
+            irrelevant_dates_list = (
+                request.form.get("non-working-days").replace(" ", "").split(",")
+            )
+
         did_duty_on_holiday = (
             True if request.form.get("holiday-duty-certificate") else False
         )

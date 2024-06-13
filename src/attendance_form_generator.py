@@ -106,6 +106,7 @@ class AttendanceFormGenerator:
                 new_contract_period=self.new_contract_period,
             )
         )
+
         if len(self.irrelevant_dates_list) != 0:
             self.excel_handler.mark_irrelevant_dates(self.irrelevant_dates_list)
 
@@ -158,13 +159,17 @@ class AttendanceFormGenerator:
                     self.datetime_util.get_month(
                         target_date=self.attendance_period_to,
                         current_format="%d/%m/%Y",
-                    ),
+                    )
+                ]
+            ),
+            current_year=" ".join(
+                [
                     str(
                         self.datetime_util.get_year(
                             target_date=self.attendance_period_to,
                             current_format="%d/%m/%Y",
                         )
-                    ),
+                    )
                 ]
             ),
         )

@@ -65,17 +65,19 @@ class OtherConfigs:
     def get_db_path(self):
         return self.config["db_path"]
 
-    def get_output_path(self, current_month, post):
+    def get_output_path(self, current_month, current_year, post):
         if post == "Messenger":
             return (
                 self.config["output_save_path"]
-                + f"/{current_month}/"
+                + f" {current_year}/"
+                + f"/{current_month} {current_year}/"
                 + self.config["contract_messengers_section"]
             )
         elif post == "Messenger-AD-A-8" or post == "Labourer":
             return (
                 self.config["output_save_path"]
-                + f"/{current_month}/"
+                + f" {current_year}/"
+                + f"/{current_month} {current_year}/"
                 + self.config["daily_wages_employee_section"]
             )
         elif post == "Buggy Operator":
@@ -141,11 +143,17 @@ class ExcelCellConfig:
     def get_attendance_dates_column_ids(self, target):
         return self.config["dateColumnMapping"][target]
 
-    def get_an_fn_cell_id(self, target):
+    def get_an_fn_cell_id_first_month(self, target):
         date_column_id = self.get_attendance_dates_column_ids(target=target)
         return date_column_id + self.config[
-            "anRowNumber"
-        ], date_column_id + self.config["fnRowNumber"]
+            "anRowNumberFirstMonth"
+        ], date_column_id + self.config["fnRowNumberFirstMonth"]
+
+    def get_an_fn_cell_id_second_month(self, target):
+        date_column_id = self.get_attendance_dates_column_ids(target=target)
+        return date_column_id + self.config[
+            "anRowNumberSecondMonth"
+        ], date_column_id + self.config["fnRowNumberSecondMonth"]
 
 
 class CertificatesTemplate:

@@ -7,6 +7,6 @@ buggyDriverPerDayWage: 730
 contractDriverPerDayWage: 725
 department: "CD Unit"
 db_path: "/src/database/main_db.sqlite"
-output_save_path: "/home/user/Desktop/Attendence_Forms"
+output_save_path: "/home/user/Desktop/Attendence_Forms/Attendance Forms"
 contract_messengers_section: "EA I"
 daily_wages_employee_section: "AD A VIII"

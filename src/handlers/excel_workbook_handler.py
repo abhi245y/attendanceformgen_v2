@@ -26,6 +26,7 @@ class ExcelWorkbookHandler:
             "break": "B",
         }
         for attendance_type, attendance_dates in attendance_data.items():
+            print(attendance_dates, attendance_type)
             if attendance_dates is not None or len(attendance_dates) != 0:
                 mark = attendance_markings.get(attendance_type, "")
                 for date in attendance_dates:
@@ -33,7 +34,14 @@ class ExcelWorkbookHandler:
                         day = self.dt_util.get_day(
                             target_date=date, current_format="%d/%m/%Y"
                         )
-                        anCellID, fnCellID = self.config.get_an_fn_cell_id(day)
+                        if day > 20:
+                            anCellID, fnCellID = (
+                                self.config.get_an_fn_cell_id_first_month(day)
+                            )
+                        else:
+                            anCellID, fnCellID = (
+                                self.config.get_an_fn_cell_id_second_month(day)
+                            )
                         self.selected_sheet[anCellID] = mark
                         self.selected_sheet[fnCellID] = mark
                     except Exception as e:
@@ -45,7 +53,10 @@ class ExcelWorkbookHandler:
         for date in irrelevant_dates_list:
             try:
                 day = self.dt_util.get_day(date, "%d/%m/%Y")
-                anCellID, fnCellID = self.config.get_an_fn_cell_id(day)
+                if day > 20:
+                    anCellID, fnCellID = self.config.get_an_fn_cell_id_first_month(day)
+                else:
+                    anCellID, fnCellID = self.config.get_an_fn_cell_id_second_month(day)
                 max_width_of_cell = max(
                     len(str(self.selected_sheet[anCellID].value)),
                     len(str(self.selected_sheet[fnCellID].value)),
