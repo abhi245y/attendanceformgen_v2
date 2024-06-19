@@ -26,7 +26,7 @@ class ExcelWorkbookHandler:
             "break": "B",
         }
         for attendance_type, attendance_dates in attendance_data.items():
-            print(attendance_dates, attendance_type)
+            # print(attendance_dates, attendance_type)
             if attendance_dates is not None or len(attendance_dates) != 0:
                 mark = attendance_markings.get(attendance_type, "")
                 for date in attendance_dates:

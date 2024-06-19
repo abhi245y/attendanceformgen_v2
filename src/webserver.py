@@ -54,16 +54,28 @@ def processData():
                 "%d/%m/%Y", "%Y-%m-%d", request.form.get("salary-period-to")
             ),
         ]
-        if (
-            request.form.get("non-working-days") == " "
-            or request.form.get("non-working-days") == ""
-        ):
-            absent_days = request.form.get("absent-days").replace(" ", "").split(",")
-        holiday_dates = request.form.get("holiday-dates").replace(" ", "").split(",")
 
-        break_days = [request.form.get("break-days")]
-        if not is_not_empty_or_whitespace(request.form.get("non-working-days")):
-            irrelevant_dates_list = (
+        absent_days = []
+        holiday_dates = []
+        break_days = []
+        irrelevant_dates_list = []
+        holiday_duty_dates = []
+        if is_not_empty_or_whitespace(request.form.get("absent-days")):
+            print(request.form.get("absent-days"))
+            absent_days.extend(request.form.get("absent-days").split(","))
+
+        if is_not_empty_or_whitespace(request.form.get("holiday-dates")):
+            holiday_dates.extend(
+                request.form.get("holiday-dates").replace(" ", "").split(",")
+            )
+
+        if is_not_empty_or_whitespace(request.form.get("break-days")):
+            break_days.extend(
+                request.form.get("break-days").replace(" ", "").split(",")
+            )
+
+        if is_not_empty_or_whitespace(request.form.get("non-working-days")):
+            irrelevant_dates_list.extend(
                 request.form.get("non-working-days").replace(" ", "").split(",")
             )
 
@@ -77,22 +89,13 @@ def processData():
             True if request.form.get("new-contract-period") else False
         )
 
-        new_contract_period_from = request.form.get("new-contract-period-from")
-        new_contract_period_to = request.form.get("new-contract-period-to")
+        if did_the_contract_extend:
+            new_contract_period_from = request.form.get("new-contract-period-from")
+            new_contract_period_to = request.form.get("new-contract-period-to")
+        else:
+            new_contract_period_from = []
+            new_contract_period_to = []
 
-        print(
-            employee_name,
-            appointment_period_overide_check,
-            period_appointment_from,
-            period_appointment_to,
-            salary_period,
-            absent_days,
-            holiday_dates,
-            break_days,
-            irrelevant_dates_list,
-            did_duty_on_holiday,
-            holiday_duty_dates,
-        )
         AttendanceFormGenerator(
             absent_days=absent_days,
             holidays_list=holiday_dates,
