@@ -39,7 +39,11 @@ def get_employee_details(employee_name):
 @app.route("/processing", methods=["GET", "POST"])
 def processData():
     if request.method == "POST":
-        employee_name = request.form.getlist("employee-name")[0]
+        multi_mode = True if request.form.get("multi-check") else False
+        if multi_mode:
+            employee_names = request.form.getlist("employee-name")
+        else:
+            employee_name = request.form.getlist("employee-name")[0]
         appointment_period_overide_check = (
             True if request.form.get("overide-check") else False
         )
@@ -62,7 +66,9 @@ def processData():
         holiday_duty_dates = []
         if is_not_empty_or_whitespace(request.form.get("absent-days")):
             print(request.form.get("absent-days"))
-            absent_days.extend(request.form.get("absent-days").split(","))
+            absent_days.extend(
+                request.form.get("absent-days").replace(" ", "").split(",")
+            )
 
         if is_not_empty_or_whitespace(request.form.get("holiday-dates")):
             holiday_dates.extend(
@@ -96,18 +102,37 @@ def processData():
             new_contract_period_from = []
             new_contract_period_to = []
 
-        AttendanceFormGenerator(
-            absent_days=absent_days,
-            holidays_list=holiday_dates,
-            employee_name=employee_name,
-            did_duty_on_holiday=did_duty_on_holiday,
-            holiday_duty_dates=holiday_duty_dates,
-            break_date=break_days,
-            attendance_period=salary_period,
-            irrelevant_dates_list=irrelevant_dates_list,
-            did_the_contract_extend=did_the_contract_extend,
-            new_contract_period=[new_contract_period_from, new_contract_period_to],
-        ).main()
+        if multi_mode:
+            for employee_name in employee_names:
+                AttendanceFormGenerator(
+                    absent_days=absent_days,
+                    holidays_list=holiday_dates,
+                    employee_name=employee_name,
+                    did_duty_on_holiday=did_duty_on_holiday,
+                    holiday_duty_dates=holiday_duty_dates,
+                    break_date=break_days,
+                    attendance_period=salary_period,
+                    irrelevant_dates_list=irrelevant_dates_list,
+                    did_the_contract_extend=did_the_contract_extend,
+                    new_contract_period=[
+                        new_contract_period_from,
+                        new_contract_period_to,
+                    ],
+                ).main()
+        else:
+            AttendanceFormGenerator(
+                absent_days=absent_days,
+                holidays_list=holiday_dates,
+                employee_name=employee_name,
+                did_duty_on_holiday=did_duty_on_holiday,
+                holiday_duty_dates=holiday_duty_dates,
+                break_date=break_days,
+                attendance_period=salary_period,
+                irrelevant_dates_list=irrelevant_dates_list,
+                did_the_contract_extend=did_the_contract_extend,
+                new_contract_period=[new_contract_period_from, new_contract_period_to],
+            ).main()
+
         return redirect(request.referrer)
 
 
