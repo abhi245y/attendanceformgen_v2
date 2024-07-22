@@ -81,7 +81,12 @@ class OtherConfigs:
                 + self.config["daily_wages_employee_section"]
             )
         elif post == "Buggy Operator":
-            return self.config["output_save_path"] + f"/{current_month}/" + post
+            return (
+                self.config["output_save_path"]
+                + f" {current_year}/"
+                + f"/{current_month} {current_year}/"
+                + post
+            )
 
 
 class ExcelCellConfig:
