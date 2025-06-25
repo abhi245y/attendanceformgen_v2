@@ -15,7 +15,7 @@ This system was developed to replace tedious manual attendance tracking and form
 
 ![main_ui](screenshots/main_ui.png)
 
-### Generated Excel Form Output
+### Generated Excel File
 
 ![generated_output](screenshots/excel_form.png)
 
